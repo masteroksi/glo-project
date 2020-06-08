@@ -1,10 +1,17 @@
-const money = 'money',
-    income = 'income',
-    addExpenses = 'addExpenses',
-    deposit = 'deposit',
-    mission = 'mission',
-    period = 'period';
+const money = 10,
+    income = 'муж',
+    addExpenses = 'машина,Дача,Шопинг',
+    deposit = true,
+    mission = 100000,
+    period = 8;
 
-alert('Любой текст');
+console.log(typeof money, typeof income, typeof deposit);
 
-console.log('Текст в консоле');
+console.log(addExpenses.length);
+
+console.log(`Период равен ${period} месяцев`, `Цель заработать ${mission} долларов`);
+
+console.log(addExpenses.toLowerCase().split(','));
+
+const budgetDay = money / 30;
+console.log(budgetDay);
