@@ -1,0 +1,22 @@
+{
+  "name": "glo-project",
+  "version": "1.0.0",
+  "description": "training project from gloAcademy",
+  "scripts": {
+    "start": "gulp watch",
+    "build": "gulp build"
+  },
+  "keywords": [
+    "blog",
+    "admin panel"
+  ],
+  "author": "Oksana Tymchuk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/masteroksi/blog-admin-panel/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jshint": "^2.11.1"
+  }
+}
