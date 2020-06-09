@@ -21,7 +21,7 @@ const amount2 = prompt('Во сколько это обойдется?');
 const showTypeOf = () => [typeof money, typeof income, typeof deposit];
 console.log('showTypeOf', showTypeOf().toString());
 
-const getExpensesMonth = () => amount1 + amount2;
+const getExpensesMonth = () => Number(amount1) + Number(amount2);
 console.log('getExpensesMonth', getExpensesMonth());
 
 const getAccumulatedMonth = () => money - getExpensesMonth();
