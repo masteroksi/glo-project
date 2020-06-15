@@ -13,6 +13,14 @@ let start = () => {
 };
 start();
 
+function isInvalidRequiredText(text) {
+    return text === null || text.trim() === '';
+}
+
+function isInvalidRequiredMoney(number) {
+    return number === null || !isNumber(number) || number <= 0;
+}
+
 let appData = {
     income: {},
     expenses: {},
@@ -24,6 +32,9 @@ let appData = {
     budgetDay: 0,
     budgetMonth: 0,
     expensesMonth: 0,
+
+    percentDeposit: 0,
+    moneyDeposit: 0,
 
     getBudgetDay() {
         this.budgetDay = Math.floor(this.getBudget() / 30);
@@ -57,27 +68,76 @@ let appData = {
             return 'Что то пошло не так';
         }
     },
-    asking: function () {
+
+    getInfoDeposit() {
+        if (appData.deposit) {
+            do {
+                appData.percentDeposit = +prompt('годовой процент депозита?', '12');
+            } while (isInvalidRequiredMoney(appData.percentDeposit));
+            do {
+                appData.moneyDeposit = +prompt('   - сумма депозита?', '10000');
+            } while (isInvalidRequiredMoney(appData.moneyDeposit));
+        }
+    },
+    calcSavedMoney() {
+        return appData.budgetMonth * appData.period;
+    },
+    asking() {
         let addExpenses = prompt('Перечислите возможные расходы за рассчитываемый период через запятую');
         this.addExpenses = addExpenses.toLowerCase().split(',');
         this.deposit = confirm('Есть ли у вас депозит в банке?');
 
         for (let i = 0; i < 2; i++) {
-            const expensesItem = prompt('Введите обязательную статью расходов?');
-            const spendMoney = +prompt('Во сколько это обойдется?');
+            let expensesItem;
+            do {
+                expensesItem = prompt('Введите обязательную статью расходов?');
+            } while (isInvalidRequiredText(expensesItem));
+
+
+            let spendMoney;
+            do {
+                spendMoney = +prompt('Во сколько это обойдется?');
+            } while (isInvalidRequiredMoney(spendMoney));
+
             this.expenses[expensesItem] = spendMoney;
         }
+
+        if (confirm('Есть ли дополнительный источник заработка ?')) {
+            let itemIncome;
+            do {
+                itemIncome = prompt('наименование дополнительного источника заработка', 'English tutor');
+            } while (isInvalidRequiredText(itemIncome));
+
+            let cashIncome;
+            do {
+                cashIncome = +prompt('сумма дополнительного заработка', '10000');
+            } while (isInvalidRequiredMoney(cashIncome));
+            appData.income[itemIncome] = cashIncome;
+            this.budget += cashIncome;
+        }
+
+        this.getInfoDeposit();
     },
 };
-
 appData.asking();
 appData.getExpensesMonth();
+
+const newArr = [];
+for (let i = 0; i < appData.addExpenses.length; i++) {
+    const value = appData.addExpenses[i].trim();
+    const firstLetter = value[0];
+    const restLetters = value.substr(1, value.length - 1);
+    newArr[i] = firstLetter.toUpperCase() + restLetters;
+}
+
+console.log('Возможные расходы', newArr.join(', '));
+
 
 console.log('Расходы за месяц: ', appData.getExpensesMonth());
 console.log(`Цель будет достигнута через ${appData.getTargetMonth()} месяцов`);
 console.log('Уровень дохода', appData.getBudget());
 
-console.log("Наша программа включает в себя данные:");
+console.log('Наша программа включает в себя данные:');
 for (const key in appData) {
     const value = appData[key];
 
