@@ -71,6 +71,15 @@ let appData = {
         this.getAddIncome();
         this.getBudgetDay();
         this.showResults();
+
+        this.toggleDataInputs(true);
+        this.toggleRestartBtn(true);
+    },
+    reset() {
+        this.resetDataInputs();
+        this.toggleDataInputs(false);
+        this.toggleRestartBtn(false);
+        handleChangeSallaryAbount();
     },
     showResults() {
         inputBudgetMonthValue.value = this.budgetMonth;
@@ -80,6 +89,31 @@ let appData = {
         inputAdditionalIncomeValue.value = this.addIncome.join(', ');
         inputTargetMonthValue.value = this.getTargetMonth();
         inputIncomePeriodValue.value = this.calcPeriod();
+    },
+
+
+    toggleDataInputs(isDisabled) {
+        const allDataTextInputs = document.querySelectorAll('.data input[type=text]');
+        allDataTextInputs.forEach(inputItem => {
+            inputItem.disabled = isDisabled;
+        });
+    },
+
+    resetDataInputs() {
+        const allDataTextInputs = document.querySelectorAll('.data input[type=text]');
+        allDataTextInputs.forEach(inputItem => {
+            inputItem.value = '';
+        });
+    },
+
+    toggleRestartBtn(isEndOfProgram) {
+        if (isEndOfProgram) {
+            buttonStart.style.display = 'none';
+            buttonCancel.style.display = 'block';
+        } else {
+            buttonStart.style.display = 'block';
+            buttonCancel.style.display = 'none';
+        }
     },
 
     getAddIncome() {
@@ -191,20 +225,18 @@ let appData = {
     },
 };
 
-buttonStart.disabled = true;
-salaryAmount.addEventListener('input', () => {
+const handleChangeSallaryAbount = () => {
     buttonStart.disabled = salaryAmount.value === '';
-});
+};
 
-buttonStart.addEventListener('click', () => {
-    appData.start();
-});
-buttonPlusExpenses.addEventListener('click', () => {
-    appData.addExpensesBlock();
-});
-buttonPlusIncome.addEventListener('click', () => {
-    appData.addIncomeBlock();
-});
+salaryAmount.addEventListener('input', handleChangeSallaryAbount);
+handleChangeSallaryAbount();
+
+buttonStart.addEventListener('click', appData.start.bind(appData));
+buttonPlusExpenses.addEventListener('click', appData.addExpensesBlock.bind(appData));
+buttonPlusIncome.addEventListener('click', appData.addIncomeBlock.bind(appData));
+
+buttonCancel.addEventListener('click', appData.reset.bind(appData));
 
 periodSelect.addEventListener('input', (ev) => {
     periodAmount.innerText = ev.target.value;
