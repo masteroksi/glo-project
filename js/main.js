@@ -4,7 +4,7 @@ const buttonStart = document.getElementById('start');
 const buttonCancel = document.getElementById('cancel');
 const buttonPlusIncome = document.getElementsByTagName('button')[0];
 const buttonPlusExpenses = document.getElementsByTagName('button')[1];
-const checkbox = document.querySelector('#deposit-check');
+const depositCheck = document.querySelector('#deposit-check');
 const additionalIncomeItem = document.querySelectorAll('.additional_income-item');
 
 const inputBudgetMonthValue = document.getElementsByClassName('budget_month-value')[0];
@@ -24,9 +24,12 @@ const incomeTitle = document.querySelector('.income-title');
 const expensesTitle = document.querySelector('.expenses-title');
 let expensesItems = document.querySelectorAll('.expenses-items');
 const additionalExpensesItem = document.querySelector('.additional_expenses-item');
+
+
 const depositBank = document.querySelector('.deposit-bank');
 const depositAmount = document.querySelector('.deposit-amount');
 const depositPercent = document.querySelector('.deposit-percent');
+
 const targetAmount = document.querySelector('.target-amount');
 const periodSelect = document.querySelector('.period-select');
 const periodAmount = document.querySelector('.period-amount');
@@ -65,6 +68,7 @@ class AppData {
         this.percentDeposit = 0;
         this.moneyDeposit = 0;
     }
+
     start() {
         this.budget = +salaryAmount.value;
 
@@ -73,18 +77,36 @@ class AppData {
         this.getIncome();
         this.getAddExpenses();
         this.getAddIncome();
+        this.getInfoDeposit();
         this.getBudgetDay();
+
+        if (!this.isValidData()) {
+            this.toggleDataInputs(true);
+            this.toggleRestartBtn(true);
+            alert("Введите корректное значение")
+        }
+        if (!this.isValidPercent()) {
+            this.toggleDataInputs(true);
+            this.toggleRestartBtn(true);
+            alert('Введите корректное значение в поле проценты')
+        }
+
         this.showResults();
 
         this.toggleDataInputs(true);
         this.toggleRestartBtn(true);
     }
+
     reset() {
         this.resetDataInputs();
         this.toggleDataInputs(false);
         this.toggleRestartBtn(false);
         handleChangeSallaryAmount();
+
+        depositCheck.checked = false;
+        this.depositHandler();
     }
+
     showResults() {
         inputBudgetMonthValue.value = this.budgetMonth;
         inputBudgetDayValue.value = this.budgetDay;
@@ -94,18 +116,37 @@ class AppData {
         inputTargetMonthValue.value = this.getTargetMonth();
         inputIncomePeriodValue.value = this.calcPeriod();
     }
+
+    isValidPercent() {
+        return +this.percentDeposit >= 0 && +this.percentDeposit <= 100
+    }
+
+    isValidData() {
+        return ![
+            isNumber(+this.budget),
+            isNumber(+this.budgetDay),
+            isNumber(+this.budgetMonth),
+            isNumber(+this.incomeMonth),
+            isNumber(+this.expensesMonth),
+            isNumber(+this.percentDeposit),
+            isNumber(+this.moneyDeposit),
+        ].includes(false)
+    }
+
     toggleDataInputs(isDisabled) {
         const allDataTextInputs = document.querySelectorAll('.data input[type=text]');
         allDataTextInputs.forEach(inputItem => {
             inputItem.disabled = isDisabled;
         });
     }
+
     resetDataInputs() {
         const allDataTextInputs = document.querySelectorAll('.data input[type=text]');
         allDataTextInputs.forEach(inputItem => {
             inputItem.value = '';
         });
     }
+
     toggleRestartBtn(isEndOfProgram) {
         if (isEndOfProgram) {
             buttonStart.style.display = 'none';
@@ -115,6 +156,7 @@ class AppData {
             buttonCancel.style.display = 'none';
         }
     }
+
     getAddIncome() {
         additionalIncomeItem.forEach(item => {
             let itemValue = item.value.trim();
@@ -123,6 +165,7 @@ class AppData {
             }
         });
     }
+
     getIncome() {
         incomeItems.forEach((item) => {
             const itemIncome = item.querySelector('.income-title').value.trim();
@@ -133,6 +176,7 @@ class AppData {
             }
         });
     }
+
     addIncomeBlock() {
         const cloneIncomeItems = incomeItems[0].cloneNode(true);
         incomeItems[0].parentNode.insertBefore(cloneIncomeItems, buttonPlusIncome);
@@ -141,6 +185,7 @@ class AppData {
             buttonPlusIncome.style.display = 'none';
         }
     }
+
     getExpenses() {
         expensesItems.forEach((item) => {
             const itemExpenses = item.querySelector('.expenses-title').value;
@@ -150,6 +195,7 @@ class AppData {
             }
         });
     }
+
     addExpensesBlock() {
         const cloneExpensesItems = expensesItems[0].cloneNode(true);
         expensesItems[0].parentNode.insertBefore(cloneExpensesItems, buttonPlusExpenses);
@@ -158,6 +204,7 @@ class AppData {
             buttonPlusExpenses.style.display = 'none';
         }
     }
+
     getAddExpenses() {
         const addExpenses = inputAdditionalExpensesItem.value.split(',');
         addExpenses.forEach((item) => {
@@ -167,14 +214,19 @@ class AppData {
             }
         });
     }
+
     getBudgetDay() {
         this.budgetDay = Math.floor(this.getBudget() / 30);
         return this.budgetDay;
     }
+
     getBudget() {
-        this.budgetMonth = this.budget + this.incomeMonth - this.expensesMonth;
+        const monthDeposit = this.moneyDeposit * (this.percentDeposit / 100);
+
+        this.budgetMonth = this.budget + this.incomeMonth - this.expensesMonth + monthDeposit;
         return this.budgetMonth;
     }
+
     getExpensesMonth() {
         let sum = 0;
         for (const key in this.expenses) {
@@ -188,9 +240,11 @@ class AppData {
         this.expensesMonth = sum;
         return sum;
     }
+
     getTargetMonth() {
         return Math.ceil(targetAmount.value / this.getBudget());
     }
+
     getStatusIncome() {
         if (this.budgetDay >= 1200) {
             return 'У вас высокий уровень дохода';
@@ -202,6 +256,7 @@ class AppData {
             return 'Что то пошло не так';
         }
     }
+
     getInfoDeposit() {
         if (appData.deposit) {
             do {
@@ -212,9 +267,45 @@ class AppData {
             } while (isInvalidRequiredMoney(appData.moneyDeposit));
         }
     }
+
+    getInfoDeposit() {
+        if (this.deposit) {
+            this.percentDeposit = depositPercent.value;
+            this.moneyDeposit = depositAmount.value;
+        }
+    }
+
     calcPeriod() {
         return this.budgetMonth * periodSelect.value;
     }
+
+    changePercent() {
+        const valueSelect = this.value;
+        if (valueSelect === 'other') {
+            // home-worck
+            depositPercent.style.display = 'inline-block';
+        } else {
+            depositPercent.style.display = 'none';
+            depositPercent.value = valueSelect;
+        }
+    }
+
+    depositHandler() {
+        if (depositCheck.checked) {
+            depositBank.style.display = 'inline-block';
+            depositAmount.style.display = 'inline-block';
+            depositBank.addEventListener('change', this.changePercent);
+        } else {
+            depositBank.style.display = 'none';
+            depositAmount.style.display = 'none';
+            depositPercent.style.display = 'none';
+            depositBank.value = '';
+            depositAmount.value = '';
+            depositBank.removeEventListener('change', this.changePercent);
+        }
+        this.deposit = depositCheck.checked;
+    }
+
     eventsListeners() {
         salaryAmount.addEventListener('input', handleChangeSallaryAmount);
         handleChangeSallaryAmount();
@@ -226,9 +317,12 @@ class AppData {
         buttonCancel.addEventListener('click', this.reset.bind(this));
 
         periodSelect.addEventListener('input', (ev) => {
+            this.period = ev.target.value;
             periodAmount.innerText = ev.target.value;
             inputIncomePeriodValue.value = this.calcPeriod();
         });
+
+        depositCheck.addEventListener('change', this.depositHandler.bind(this));
     }
 }
 
